@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import bcrypt from "bcrypt-nodejs";
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt-nodejs';
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
@@ -11,7 +11,7 @@ const userSchema = new Schema({
   password: String,
 });
 
-userSchema.pre("save", function (next) {
+userSchema.pre('save', function (next) {
   const user = this;
 
   bcrypt.genSalt(10, (err, salt) => {
@@ -29,4 +29,14 @@ userSchema.pre("save", function (next) {
   });
 });
 
-export default mongoose.model("User", userSchema);
+userSchema.methods.comparePassword = function (candidatePassword, callback) {
+  bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
+    if (err) {
+      return callback(err);
+    }
+
+    callback(null, isMatch);
+  });
+};
+
+export default mongoose.model('User', userSchema);
